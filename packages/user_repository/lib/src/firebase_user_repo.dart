@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:rxdart/rxdart.dart';
 import 'package:user_repository/src/entity/entities.dart';
 import 'package:user_repository/src/user_repo.dart';
@@ -46,9 +45,7 @@ class FirebaseUserRepo implements UserRepository {
            email: myUser.email,
            password: password
        );
-
        myUser.userId= user.user!.uid;
-
        return myUser;
     } catch (e) {
       log(e.toString());
@@ -57,19 +54,21 @@ class FirebaseUserRepo implements UserRepository {
   }
 
   @override
-  Future<void> logOut() {
+  Future<void> logOut() async{
+    await _firebaseAuth.signOut();
+
+  }
+
+  @override
+  Future<void> setUserData(MyUser myUser) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      await userCollection
+          .doc(myUser.userId)
+          .set(myUser.toEntity().toDocument());
     } catch (e) {
       log(e.toString());
       rethrow;
     }
-  }
-
-  @override
-  Future<void> setUserData(MyUser user) {
-    // TODO: implement setUserData
-    throw UnimplementedError();
   }
 
 
